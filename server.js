@@ -23,6 +23,7 @@ const ranking = [];
 class body extends Server{
     api(path, prm){
         //
+        let retobj = null;
         switch(path.split("/")[2]){
             // テンプレ
             case "":
@@ -30,13 +31,18 @@ class body extends Server{
             
             // タイマーストップ 
             case "timerstop":
-                alert("timer stop");
+                /*
+                    prm format
+                    time: d
+                */
+                retobj = prm.time;
                 break;
             
             // returns error
             default:
                 break;
         }
+        return retobj;
     }
 }
 new body(8001);
