@@ -108,7 +108,7 @@
         // console.log(`${m}:${s}:${ms}`);
         timer.textContent = `${m}:${s}:${ms}`;
 
-        if (s === 10) {
+        if (s === "10") {
           const data = await fetchJSON("api/timerstop", { time: d }); //time: d
           console.log(data);
         }
