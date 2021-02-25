@@ -30,13 +30,13 @@ class body extends Server{
             case "":
                 break;
             
-            // タイマーストップ 
+            // タイマーストップ
             case "timerstop":
-                /*
+                /* 
                     prm format
-                    time: d
+                    {time: d(int)};
                 */
-                retobj = prm.time;
+                retobj = [Number(prm.time), Number(prm.distance)];
                 break;
             
             // returns error
