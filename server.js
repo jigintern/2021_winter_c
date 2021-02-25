@@ -23,20 +23,26 @@ const ranking = [];
 class body extends Server{
     api(path, prm){
         //
+        let retobj = null;
         switch(path.split("/")[2]){
             // テンプレ
             case "":
                 break;
             
-            // タイマーストップ 
+            // タイマーストップ
             case "timerstop":
-                alert("timer stop");
+                /* 
+                    prm format
+                    {time: d(int)};
+                */
+                retobj = [Number(prm.time), Number(prm.distance)];
                 break;
             
             // returns error
             default:
                 break;
         }
+        return retobj;
     }
 }
 new body(8001);
