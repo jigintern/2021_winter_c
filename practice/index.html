@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script type="module">
+      // alert("Hello!");
+      // alert(prompt("name?"));
+      import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+      window.onload = async () => {
+        const data = await fetchJSON("api/test", { name: "jig", age: 17 }); //time: d
+        alert(data);
+        console.log(data);
+        for (const name in data) {
+          const value = data[name];
+          const div = document.createElement("div");
+          div.innerHTML = `${name}: ${value}`;
+          document.body.appendChild(div);
+        }
+      };
+    </script>
+  </body>
+</html>
