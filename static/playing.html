@@ -60,6 +60,7 @@
 
     <script type="module">
       import L from "https://code4sabae.github.io/leaflet-mjs/leaflet.mjs";
+      import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
 
       window.onload = async function () {
         const data = [
@@ -98,13 +99,19 @@
       let timeoutId;
 
       // タイマーカウントアップ
-      const countUp = function () {
+      const countUp = async function () {
         const d = new Date(Date.now() - startTime);
+        console.log(d);
         const m = String(d.getMinutes()).padStart(2, "0");
         const s = String(d.getSeconds()).padStart(2, "0");
         const ms = String(d.getMilliseconds()).padStart(3, "0");
         // console.log(`${m}:${s}:${ms}`);
         timer.textContent = `${m}:${s}:${ms}`;
+
+        if (s === 10) {
+          const data = await fetchJSON("api/timerstop", { time: d }); //time: d
+          console.log(data);
+        }
 
         timeoutId = setTimeout(() => {
           countUp();
