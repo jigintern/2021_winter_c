@@ -19,6 +19,7 @@
 
 import {Server} from "https://js.sabae.cc/Server.js"
 
+const users = [];
 const ranking = [];
 class body extends Server{
     api(path, prm){
