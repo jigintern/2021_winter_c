@@ -85,7 +85,7 @@
       let userId;
       let i = 0;
       let watch_id;
-      let d;
+      let d, m, s, ms;
 
       const map = L.map("mapid");
       // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
@@ -192,9 +192,9 @@
       const countUp = async function () {
         d = new Date(Date.now() - startTime);
         //console.log(d);
-        const m = String(d.getMinutes()).padStart(2, "0");
-        const s = String(d.getSeconds()).padStart(2, "0");
-        const ms = String(d.getMilliseconds()).padStart(3, "0");
+        m = String(d.getMinutes()).padStart(2, "0");
+        s = String(d.getSeconds()).padStart(2, "0");
+        ms = String(d.getMilliseconds()).padStart(3, "0");
         // console.log(`${m}:${s}:${ms}`);
         timer.textContent = `${m}:${s}:${ms}`;
 
