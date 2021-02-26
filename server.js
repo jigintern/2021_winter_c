@@ -19,7 +19,7 @@
 
 import {Server} from "https://js.sabae.cc/Server.js"
 
-const users = [];
+const lastuserid = 0;
 const ranking = [];                     // ランキングのデータを保持する変数
 const fetchNumber = 3;
 class body extends Server{
@@ -39,33 +39,68 @@ class body extends Server{
             // タイマーストップ
             case "timerstop":
                 const point = (/* なんか適当な処理でポイント計算する */ 0);
-                ranking.push({schoolName: prm.schoolName, point: point, userName: prm.userName});
+                ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
                 // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
                 retObj = getRanking(prm.schoolName, fetchNumber);
                 break;
 
             // ユーザー登録
             case "adduser":
+                lastuserid++;
+                retObj = lastuserid;
                 break;
             
+            // 住所から緯度経度
+            case "geocoder":
+                const res = await fetch("https://map.yahooapis.jp/geocode/V1/geoCoder?appid=dj00aiZpPXhSanFsWFF0UENiZyZzPWNvbnN1bWVyc2VjcmV0Jng9MzE-&query=" + encodeURI(prm.address) + "&output=json&results=100");
+                const data = await res.json();
+                retObj = [];
+                if(!data){return 0;}
+                data.Feature.forEach(r => {
+                    const v = r.Geometry.Coordinates.split(",");
+                    retObj.push({name: r.Name, lat: v[0], lng: v[1]});
+                });
+                break;
+
             // returns error
             default:
                 break;
         }
+        console.log(retObj);
         return retObj;
     }
 
     //schoolNameに学校名を指定、fetchCountに必要なデータ件数を指定
-    getRanking(schoolName, fetchCount){
-        // schoolNameをキーにrankingを検索し、pointの降順にfetchCount件取得してreturnする
+    getRanking(schoolName, userId, fetchCount, queryType){
+        /*
+            queryType = 1, 2, 3
+            queryType 1 : schoolName only
+            queryType 2 : userId only
+            queryType 3 : both keysto query
+        */
         let retObj = [];
-        const tmpObj = ranking.filter(r => r.schoolName = schoolName).sort( (a, b) => {
-            return a.point > b.point ? -1 : 1;
-        });
+        const tmpObj = null;
+        switch(queryType){
+            case 1:
+                tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortfunc(a, b));
+                break;
+            case 2:
+                tmpObj = ranking.filter(r => r.userId == userId).sort(sortfunc(a, b));
+                break;
+            case 3:
+                tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortfunc(a, b));
+                break;
+            default:
+                break;
+        }
         for(let i = 0; i < fetchCount; i++){
-            if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userName: ""});}
+            if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
         }
         return retObj;
+    }
+
+    sortfunc(a, b){
+        return a.point > b.point ? -1 : 1;
     }
 
 }
