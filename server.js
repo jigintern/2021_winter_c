@@ -24,7 +24,7 @@ const ranking = [];                     // ランキングのデータを保持�
 const fetchNumber = 3;
 class body extends Server{
 
-    api(path, prm){
+    async api(path, prm){
         let retObj = null;
         switch(path.split("/")[2]){
             // テンプレ
