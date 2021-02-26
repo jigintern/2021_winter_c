@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link href="normalize.css" rel="stylesheet" type="text/css" />
+    <link href="sakura.css" id="sakura-css" rel="stylesheet" type="text/css" /> -->
     <link rel="apple-touch-icon" href="map-ogp.png" />
     <meta property="og:image" content="map-ogp.png" />
     <meta name="format-detection" content="telephone=no" />
@@ -66,6 +68,16 @@
       let distance;
       let i = 0;
 
+      const map = L.map("mapid");
+      // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
+      L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
+        attribution:
+          '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
+        maxZoom: 18,
+      }).addTo(map);
+      // let iconlayer = L.layerGroup();
+      // iconlayer.addTo(map);
+
       function getDistance(lat1, lng1, lat2, lng2) {
         lat1 *= Math.PI / 180;
         lng1 *= Math.PI / 180;
@@ -114,16 +126,16 @@
         }
         i++;
 
-        const map = L.map("mapid");
+        // const map = L.map("mapid");
         // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
-        L.tileLayer(
-          "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
-          {
-            attribution:
-              '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
-            maxZoom: 18,
-          }
-        ).addTo(map);
+        // L.tileLayer(
+        //   "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
+        //   {
+        //     attribution:
+        //       '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
+        //     maxZoom: 18,
+        //   }
+        // ).addTo(map);
 
         let iconlayer = L.layerGroup();
         iconlayer.addTo(map);
@@ -156,8 +168,13 @@
           const data = await fetchJSON("api/timerstop", {
             time: d,
             distance: distance,
+            schoolName: "ダミー学校",
+            userId: "ダミーユーザー",
           });
-          // console.log(data);
+          localStorage.setItem("time", `${m}:${s}:${ms}`);
+          localStorage.setItem("ranking", data);
+          console.log(localStorage.getItem("time"));
+          window.location.href = "./result.html";
         }
 
         timeoutId = setTimeout(() => {
