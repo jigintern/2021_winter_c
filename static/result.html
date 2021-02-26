@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>結果</title>
+  </head>
+  <body>
+    <main>
+      <div id="resultTime"></div>
+    </main>
+
+    <script type="module">
+      import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+      let resultTime = document.getElementById("resultTime");
+
+      window.onload = async () => {
+        const rankingData = localStorage.getItem("ranking");
+        console.log(rankingData);
+        resultTime.innerHTML = localStorage.getItem("time");
+      };
+    </script>
+  </body>
+</html>
