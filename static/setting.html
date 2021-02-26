@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+</head>
+<body>
+<h1>登下校タイムアタック！</h1>
+<div>～設定～</div>
+<div>　自宅住所（番地まで）
+  <input type="text" id="my-home"><button id="my-home-btn">送信</button>
+</div>
+<script type="module">
+  import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+  document.getElementById("my-home-btn").addEventListener("click", async function(){
+      const myHome = document.getElementById("my-home").value;
+      
+      fetchJSON("/api/geocoder", {
+          address: myHome
+      }).then(res => {
+        if(res == null) {
+          window.alert("入力された住所は見つかりませんでした。");
+        } else{
+          const value = res[0];
+        localStorage.setItem("start",JSON.stringify(value))
+      }
+    });
+  })
+</script>
+<div>　学校住所（番地まで）
+  <input type="text" id="school"><button id="school-btn">送信</button>
+</div>
+<script type="module">
+  import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+  document.getElementById("school-btn").addEventListener("click", async function(){
+      const myHome = document.getElementById("school").value;
+      
+      fetchJSON("/api/geolocation", {
+          address: myHome
+      }).then(res => {
+        if(res == null){
+        window,alert("入力された住所は見つかりませんでした。");
+        }else{
+         const value = res[0];
+        localStorage.setItem("goal",JSON.stringify(value))
+      }
+    });
+  })
+</script>
+<div class="tagtag">
+  　　　　　　　<a href="/title.html"><b>タイトルに戻る</b></a>
+  </div>
+</body>
+</html>
