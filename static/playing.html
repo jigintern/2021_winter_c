@@ -70,7 +70,8 @@
       let distanceSum = 0;
       let distance = document.getElementById("distance");
       let startPoint;
-      let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 };
+      let goalPoint;
+      // let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 }; //test用
       let userId;
       let i = 0;
 
@@ -103,6 +104,9 @@
         startPoint = JSON.parse(localStorage.getItem("start"));
         goalPoint = JSON.parse(localStorage.getItem("goal"));
         userId = localStorage.getItem("userId");
+        console.log(startPoint);
+        console.log(goalPoint);
+        console.log(userId);
 
         let watch_id = navigator.geolocation.watchPosition(
           await gps,
