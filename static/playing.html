@@ -17,6 +17,7 @@
       body {
         font-family: sans-serif;
         margin: 0;
+        background-color: #f9f9f9;
       }
 
       .timeContainer {
@@ -53,6 +54,7 @@
     <!-- タイマー表示 -->
     <div class="timeContainer">
       <div id="timer">00:00:00</div>
+      <p id="distance">移動距離: 0</p>
     </div>
 
     <!-- 地図表示 -->
@@ -65,7 +67,11 @@
       import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
 
       const points = { lat: [], lng: [] };
-      let distance;
+      let distanceSum = 0;
+      let distance = document.getElementById("distance");
+      let startPoint;
+      let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 };
+      let userId;
       let i = 0;
 
       const map = L.map("mapid");
@@ -93,6 +99,11 @@
       }
 
       window.onload = async function () {
+        // Local Strage Data 取得
+        startPoint = JSON.parse(localStorage.getItem("start"));
+        goalPoint = JSON.parse(localStorage.getItem("goal"));
+        userId = localStorage.getItem("userId");
+
         let watch_id = navigator.geolocation.watchPosition(
           await gps,
           function (e) {
@@ -104,11 +115,17 @@
 
       async function gps(position) {
         console.log(position);
+        console.log("i = " + i);
         const data = [
           {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+            lat: position.coords.latitude + i,
+            lng: position.coords.longitude + i,
             name: "開始点",
+          },
+          {
+            lat: goalPoint.lat,
+            lng: goalPoint.lng,
+            name: goalPoint.name,
           },
         ];
 
@@ -117,12 +134,13 @@
         console.log(points);
 
         if (points.lat.length > 1) {
-          distance = getDistance(
+          distanceSum += getDistance(
             points.lat[i],
             points.lng[i],
             points.lat[i - 1],
             points.lng[i - 1]
           );
+          distance.innerHTML = "移動距離: " + distanceSum;
         }
         i++;
 
@@ -167,9 +185,9 @@
         if (s === "10") {
           const data = await fetchJSON("api/timerstop", {
             time: d,
-            distance: distance,
+            distance: distanceSum,
             schoolName: "ダミー学校",
-            userId: "ダミーユーザー",
+            userId: userId,
           });
           localStorage.setItem("time", `${m}:${s}:${ms}`);
           localStorage.setItem("ranking", data);
