@@ -17,58 +17,12 @@
 */
 // gps -> https
 
-import {Server} from "https://js.sabae.cc/Server.js"
+import {Server} from "./MyServer.js"
 
 const lastuserid = 0;
 const ranking = [];                     // ランキングのデータを保持する変数
 const fetchNumber = 3;
 class body extends Server{
-
-    async api(path, prm){
-        let retObj = null;
-        switch(path.split("/")[2]){
-            // テンプレ
-            case "":
-                break;
-
-            // 起動時ランキング
-            case "startup":
-                retObj = getRanking(prm.schoolName, fetchNumber);
-                break;
-            
-            // タイマーストップ
-            case "timerstop":
-                const point = (/* なんか適当な処理でポイント計算する */ 0);
-                ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
-                // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
-                retObj = getRanking(prm.schoolName, fetchNumber);
-                break;
-
-            // ユーザー登録
-            case "adduser":
-                lastuserid++;
-                retObj = lastuserid;
-                break;
-            
-            // 住所から緯度経度
-            case "geocoder":
-                const res = await fetch("https://map.yahooapis.jp/geocode/V1/geoCoder?appid=dj00aiZpPXhSanFsWFF0UENiZyZzPWNvbnN1bWVyc2VjcmV0Jng9MzE-&query=" + encodeURI(prm.address) + "&output=json&results=100");
-                const data = await res.json();
-                retObj = [];
-                if(!data){return 0;}
-                data.Feature.forEach(r => {
-                    const v = r.Geometry.Coordinates.split(",");
-                    retObj.push({name: r.Name, lat: v[0], lng: v[1]});
-                });
-                break;
-
-            // returns error
-            default:
-                break;
-        }
-        console.log(retObj);
-        return retObj;
-    }
 
     //schoolNameに学校名を指定、fetchCountに必要なデータ件数を指定
     getRanking(schoolName, userId, fetchCount, queryType){
@@ -101,6 +55,68 @@ class body extends Server{
 
     sortFunc(a, b){
         return a.point > b.point ? -1 : 1;
+    }
+
+    async api(path, prm){
+        let retObj = null;
+        let tmpObj = [];
+        switch(path.split("/")[2]){
+            // テンプレ
+            case "":
+                break;
+
+            // 起動時ランキング
+            case "startup":
+                retObj = [];
+                tmpObj = tmpObj = ranking.filter(r => r.schoolName == schoolName).sort((a, b) => {
+                    return a.point > b.point ? -1 : 1;
+                });
+                for(let i = 0; i < fetchNumber; i++){
+                    if(tmpObj.length > i){retObj.push({schoolName: tmpObj[i].schoolName, point: tmpObj[i].point, userId: tmpObj[i].userId});}
+                    else{retObj.push({schoolName: "", point: 0, userId: ""});}
+                }
+                break;
+            
+            // タイマーストップ
+            case "timerstop":
+                const point = (/* なんか適当な処理でポイント計算する */ 0);
+                ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
+                // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
+                console.log(ranking);
+                retObj = [];
+                tmpObj = ranking.filter(r => r.schoolName == prm.schoolName).sort((a, b) => {
+                    return a.point > b.point ? -1 : 1;
+                });
+                for(let i = 0; i < fetchNumber; i++){
+                    if(tmpObj.length > i){retObj.push({schoolName: tmpObj[i].schoolName, point: tmpObj[i].point, userId: tmpObj[i].userId});}
+                    else{retObj.push({schoolName: "", point: 0, userId: ""});}
+                }
+                break;
+
+            // ユーザー登録
+            case "adduser":
+                lastuserid++;
+                retObj = lastuserid;
+                break;
+            
+            // 住所から緯度経度
+            case "geocoder":
+                const res = await fetch("https://map.yahooapis.jp/geocode/V1/geoCoder?appid=dj00aiZpPXhSanFsWFF0UENiZyZzPWNvbnN1bWVyc2VjcmV0Jng9MzE-&query=" + encodeURI(prm.address) + "&output=json&results=100");
+                const data = await res.json();
+                retObj = [];
+                if(!data){return 0;}
+                data.Feature.forEach(r => {
+                    const v = r.Geometry.Coordinates.split(",");
+                    retObj.push({name: r.Name, lat: v[0], lng: v[1]});
+                });
+                break;
+
+            // returns error
+            default:
+                break;
+        }
+        console.log(retObj);
+        return retObj;
     }
 
 }
