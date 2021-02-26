@@ -24,38 +24,10 @@ const ranking = [];                     // ランキングのデータを保持�
 const fetchNumber = 3;
 class body extends Server{
 
-    //schoolNameに学校名を指定、fetchCountに必要なデータ件数を指定
-    getRanking(schoolName, userId, fetchCount, queryType){
-        /*
-            queryType = 1, 2, 3
-            queryType 1 : schoolName only
-            queryType 2 : userId only
-            queryType 3 : both keysto query
-        */
-        let retObj = [];
-        const tmpObj = null;
-        switch(queryType){
-            case 1:
-                tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortFunc(a, b));
-                break;
-            case 2:
-                tmpObj = ranking.filter(r => r.userId == userId).sort(sortFunc(a, b));
-                break;
-            case 3:
-                tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortFunc(a, b));
-                break;
-            default:
-                break;
-        }
-        for(let i = 0; i < fetchCount; i++){
-            if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
-        }
-        return retObj;
-    }
-
-    sortFunc(a, b){
-        return a.point > b.point ? -1 : 1;
-    }
+    // tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortFunc(a, b));
+    // for(let i = 0; i < fetchCount; i++){
+    //     if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
+    // }
 
     async api(path, prm){
         let retObj = null;
