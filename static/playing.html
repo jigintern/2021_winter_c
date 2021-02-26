@@ -47,6 +47,12 @@
         justify-content: center;
         align-items: center;
       }
+
+      .btn {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
     </style>
   </head>
 
@@ -54,7 +60,11 @@
     <!-- タイマー表示 -->
     <div class="timeContainer">
       <div id="timer">00:00:00</div>
-      <p id="distance">移動距離: 0</p>
+      <!-- <p id="distance">移動距離: 0</p> -->
+    </div>
+
+    <div class="btn">
+      <button id="button">ゴール！</button>
     </div>
 
     <!-- 地図表示 -->
@@ -70,10 +80,12 @@
       let distanceSum = 0;
       let distance = document.getElementById("distance");
       let startPoint;
-      let goalPoint;
-      // let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 }; //test用
+      // let goalPoint;
+      let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 }; //test用
       let userId;
       let i = 0;
+      let watch_id;
+      let d;
 
       const map = L.map("mapid");
       // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
@@ -101,14 +113,14 @@
 
       window.onload = async function () {
         // Local Strage Data 取得
-        startPoint = JSON.parse(localStorage.getItem("start"));
-        goalPoint = JSON.parse(localStorage.getItem("goal"));
-        userId = localStorage.getItem("userId");
+        // startPoint = JSON.parse(localStorage.getItem("start"));
+        // goalPoint = JSON.parse(localStorage.getItem("goal"));
+        // userId = localStorage.getItem("userId");
         console.log(startPoint);
         console.log(goalPoint);
         console.log(userId);
 
-        let watch_id = navigator.geolocation.watchPosition(
+        watch_id = navigator.geolocation.watchPosition(
           await gps,
           function (e) {
             alert(e.message);
@@ -144,7 +156,7 @@
             points.lat[i - 1],
             points.lng[i - 1]
           );
-          distance.innerHTML = "移動距離: " + distanceSum;
+          //distance.innerHTML = "移動距離: " + distanceSum;
         }
         i++;
 
@@ -178,7 +190,7 @@
 
       // タイマーカウントアップ
       const countUp = async function () {
-        const d = new Date(Date.now() - startTime);
+        d = new Date(Date.now() - startTime);
         //console.log(d);
         const m = String(d.getMinutes()).padStart(2, "0");
         const s = String(d.getSeconds()).padStart(2, "0");
@@ -205,6 +217,23 @@
       };
       // タイマーカウント
       countUp();
+
+      async function setGoal() {
+        navigator.geolocation.clearWatch(watch_id);
+        gps({ coords: { latitude: goalPoint.lat, longitude: goalPoint.lng } });
+        const data = await fetchJSON("api/timerstop", {
+          time: d,
+          distance: distanceSum,
+          schoolName: "ダミー学校",
+          userId: userId,
+        });
+        localStorage.setItem("time", `${m}:${s}:${ms}`);
+        localStorage.setItem("ranking", data);
+        console.log(localStorage.getItem("time"));
+        window.location.href = "./result.html";
+      }
+
+      document.getElementById("button").addEventListener("click", setGoal);
     </script>
   </body>
 </html>
