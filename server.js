@@ -39,14 +39,9 @@ class body extends Server{
 
             // 起動時ランキング
             case "startup":
-                retObj = [];
-                tmpObj = ranking.filter(r => r.schoolName == prm.schoolName).sort((a, b) => {
+                retObj = ranking.filter(r => r.userId == prm.userId).sort((a, b) => {
                     return a.point > b.point ? -1 : 1;
-                });
-                for(let i = 0; i < fetchNumber; i++){
-                    if(tmpObj.length > i){retObj.push({schoolName: tmpObj[i].schoolName, point: tmpObj[i].point, userId: tmpObj[i].userId});}
-                    else{retObj.push({schoolName: "", point: 0, userId: ""});}
-                }
+                })[0];
                 break;
             
             // タイマーストップ
