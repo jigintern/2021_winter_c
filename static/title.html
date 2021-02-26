@@ -5,6 +5,40 @@
 </head>
 <body>
 <h1>登下校タイムアタック！</h1>
+<h4>～設定～</h4>
+    <div>
+      　自宅住所（番地まで） <input type="text" id="my-home" /><button
+        id="my-home-btn"
+      >
+        送信
+      </button>
+    </div>
+    <script type="module">
+      import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+      document
+        .getElementById("my-home-btn")
+        .addEventListener("click", async function () {
+          const myHome = document.getElementById("my-home").value;
+
+          fetchJSON("/api/geocoder", {
+            address: myHome,
+          }).then((res) => {
+            if (res == null) {
+              window.alert("入力された住所は見つかりませんでした。");
+            } else {
+              const value = res[0];
+              localStorage.setItem("start", JSON.stringify(value));
+            }
+          });
+        });
+    </script>
+    <div>
+      　学校住所（番地まで） <input type="text" id="school" /><button
+        id="school-btn"
+      >
+        送信
+      </button>
+    </div>
 <h4>登校手段設定</h4>
 <div>
     <input type="checkbox" id="walk" name="horns"> 徒歩
@@ -15,9 +49,6 @@
 
 <div>
     <button onclick="location.href='/playing.html'">スタート！</button>
-</div>
-<div>
-    <a href="/setting.html">設定</a>
 </div>
 <script>
     window.addEventListener("load", function(e){
@@ -41,5 +72,24 @@
     return chars.join("");
 }
 </script>
+<script type="module">
+    import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+    document
+      .getElementById("school-btn")
+      .addEventListener("click", async function () {
+        const myHome = document.getElementById("school").value;
+
+        fetchJSON("/api/geocoder", {
+          address: myHome,
+        }).then((res) => {
+          if (res == null) {
+            window, alert("入力された住所は見つかりませんでした。");
+          } else {
+            const value = res[0];
+            localStorage.setItem("goal", JSON.stringify(value));
+          }
+        });
+      });
+  </script>
 </body>
 </html>
