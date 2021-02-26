@@ -82,13 +82,13 @@ class body extends Server{
         const tmpObj = null;
         switch(queryType){
             case 1:
-                tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortfunc(a, b));
+                tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortFunc(a, b));
                 break;
             case 2:
-                tmpObj = ranking.filter(r => r.userId == userId).sort(sortfunc(a, b));
+                tmpObj = ranking.filter(r => r.userId == userId).sort(sortFunc(a, b));
                 break;
             case 3:
-                tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortfunc(a, b));
+                tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortFunc(a, b));
                 break;
             default:
                 break;
@@ -99,7 +99,7 @@ class body extends Server{
         return retObj;
     }
 
-    sortfunc(a, b){
+    sortFunc(a, b){
         return a.point > b.point ? -1 : 1;
     }
 
