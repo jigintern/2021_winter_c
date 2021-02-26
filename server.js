@@ -19,30 +19,89 @@
 
 import {Server} from "https://js.sabae.cc/Server.js"
 
-const ranking = [];
+const lastuserid = 0;
+const ranking = [];                     // ランキングのデータを保持する変数
+const fetchNumber = 3;
 class body extends Server{
+
     api(path, prm){
-        //
-        let retobj = null;
+        let retObj = null;
         switch(path.split("/")[2]){
             // テンプレ
             case "":
                 break;
+
+            // 起動時ランキング
+            case "startup":
+                retObj = getRanking(prm.schoolName, fetchNumber);
+                break;
             
             // タイマーストップ
             case "timerstop":
-                /* 
-                    prm format
-                    {time: d(int)};
-                */
-                retobj = [Number(prm.time), Number(prm.distance)];
+                const point = (/* なんか適当な処理でポイント計算する */ 0);
+                ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
+                // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
+                retObj = getRanking(prm.schoolName, fetchNumber);
+                break;
+
+            // ユーザー登録
+            case "adduser":
+                lastuserid++;
+                retObj = lastuserid;
                 break;
             
+            // 住所から緯度経度
+            case "geocoder":
+                const res = await fetch("https://map.yahooapis.jp/geocode/V1/geoCoder?appid=dj00aiZpPXhSanFsWFF0UENiZyZzPWNvbnN1bWVyc2VjcmV0Jng9MzE-&query=" + encodeURI(prm.address) + "&output=json&results=100");
+                const data = await res.json();
+                retObj = [];
+                if(!data){return 0;}
+                data.Feature.forEach(r => {
+                    const v = r.Geometry.Coordinates.split(",");
+                    retObj.push({name: r.Name, lat: v[0], lng: v[1]});
+                });
+                break;
+
             // returns error
             default:
                 break;
         }
-        return retobj;
+        console.log(retObj);
+        return retObj;
     }
+
+    //schoolNameに学校名を指定、fetchCountに必要なデータ件数を指定
+    getRanking(schoolName, userId, fetchCount, queryType){
+        /*
+            queryType = 1, 2, 3
+            queryType 1 : schoolName only
+            queryType 2 : userId only
+            queryType 3 : both keysto query
+        */
+        let retObj = [];
+        const tmpObj = null;
+        switch(queryType){
+            case 1:
+                tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortFunc(a, b));
+                break;
+            case 2:
+                tmpObj = ranking.filter(r => r.userId == userId).sort(sortFunc(a, b));
+                break;
+            case 3:
+                tmpObj = ranking.filter(r => r.schoolName == schoolName && r.userId == userId).sort(sortFunc(a, b));
+                break;
+            default:
+                break;
+        }
+        for(let i = 0; i < fetchCount; i++){
+            if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
+        }
+        return retObj;
+    }
+
+    sortFunc(a, b){
+        return a.point > b.point ? -1 : 1;
+    }
+
 }
 new body(8001);
