@@ -59,6 +59,7 @@ class body extends Server{
 
     async api(path, prm){
         let retObj = null;
+        let tmpObj = [];
         switch(path.split("/")[2]){
             // テンプレ
             case "":
@@ -66,9 +67,13 @@ class body extends Server{
 
             // 起動時ランキング
             case "startup":
-                const tmpObj = tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortFunc(a, b));
-                for(let i = 0; i < fetchCount; i++){
-                    if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
+                retObj = [];
+                tmpObj = tmpObj = ranking.filter(r => r.schoolName == schoolName).sort((a, b) => {
+                    return a.point > b.point ? -1 : 1;
+                });
+                for(let i = 0; i < fetchNumber; i++){
+                    if(tmpObj.length > i){retObj.push({schoolName: tmpObj[i].schoolName, point: tmpObj[i].point, userId: tmpObj[i].userId});}
+                    else{retObj.push({schoolName: "", point: 0, userId: ""});}
                 }
                 break;
             
@@ -77,9 +82,14 @@ class body extends Server{
                 const point = (/* なんか適当な処理でポイント計算する */ 0);
                 ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
                 // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
-                const tmpObj = tmpObj = ranking.filter(r => r.schoolName == schoolName).sort(sortFunc(a, b));
-                for(let i = 0; i < fetchCount; i++){
-                    if(tmpObj.length > i){retObj.push(tmpObj[i]);}else{retObj.push({schoolName: "", point: 0, userId: ""});}
+                console.log(ranking);
+                retObj = [];
+                tmpObj = ranking.filter(r => r.schoolName == prm.schoolName).sort((a, b) => {
+                    return a.point > b.point ? -1 : 1;
+                });
+                for(let i = 0; i < fetchNumber; i++){
+                    if(tmpObj.length > i){retObj.push({schoolName: tmpObj[i].schoolName, point: tmpObj[i].point, userId: tmpObj[i].userId});}
+                    else{retObj.push({schoolName: "", point: 0, userId: ""});}
                 }
                 break;
 
