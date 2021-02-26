@@ -82,7 +82,6 @@ class body extends Server{
                 const point = (/* なんか適当な処理でポイント計算する */ 0);
                 ranking.push({schoolName: prm.schoolName, point: point, userId: prm.userId});
                 // retObj = [Number(prm.time), Number(prm.distance), String(prm.schoolName), String(prm.userName)];
-                console.log(ranking);
                 retObj = [];
                 tmpObj = ranking.filter(r => r.schoolName == prm.schoolName).sort((a, b) => {
                     return a.point > b.point ? -1 : 1;
