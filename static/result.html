@@ -31,7 +31,7 @@
       let resultTime = document.getElementById("resultTime");
 
       window.onload = async () => {
-        const rankingData = localStorage.getItem("ranking");
+        const rankingData = JSON.parse(localStorage.getItem("ranking"));
         console.log(rankingData);
         resultTime.innerHTML = localStorage.getItem("time");
       };

@@ -228,8 +228,9 @@
           userId: userId,
         });
         localStorage.setItem("time", `${m}:${s}:${ms}`);
-        localStorage.setItem("ranking", data);
+        localStorage.setItem("ranking", JSON.stringify(data));
         console.log(localStorage.getItem("time"));
+        //sleep(3000);
         window.location.href = "./result.html";
       }
 
