@@ -68,7 +68,7 @@ class body extends Server{
             // 起動時ランキング
             case "startup":
                 retObj = [];
-                tmpObj = tmpObj = ranking.filter(r => r.schoolName == schoolName).sort((a, b) => {
+                tmpObj = tmpObj = ranking.filter(r => r.schoolName == prm.schoolName).sort((a, b) => {
                     return a.point > b.point ? -1 : 1;
                 });
                 for(let i = 0; i < fetchNumber; i++){
