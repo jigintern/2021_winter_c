@@ -122,8 +122,8 @@
         console.log("i = " + i);
         const data = [
           {
-            lat: position.coords.latitude + i,
-            lng: position.coords.longitude + i,
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
             name: "開始点",
           },
           {
@@ -186,18 +186,18 @@
         // console.log(`${m}:${s}:${ms}`);
         timer.textContent = `${m}:${s}:${ms}`;
 
-        if (s === "10") {
-          const data = await fetchJSON("api/timerstop", {
-            time: d,
-            distance: distanceSum,
-            schoolName: "ダミー学校",
-            userId: userId,
-          });
-          localStorage.setItem("time", `${m}:${s}:${ms}`);
-          localStorage.setItem("ranking", data);
-          console.log(localStorage.getItem("time"));
-          window.location.href = "./result.html";
-        }
+        // if (s === "10") {
+        //   const data = await fetchJSON("api/timerstop", {
+        //     time: d,
+        //     distance: distanceSum,
+        //     schoolName: "ダミー学校",
+        //     userId: userId,
+        //   });
+        //   localStorage.setItem("time", `${m}:${s}:${ms}`);
+        //   localStorage.setItem("ranking", data);
+        //   console.log(localStorage.getItem("time"));
+        //   window.location.href = "./result.html";
+        // }
 
         timeoutId = setTimeout(() => {
           countUp();
