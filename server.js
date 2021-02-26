@@ -73,7 +73,7 @@ class body extends Server{
                 if(!data){return 0;}
                 data.Feature.forEach(r => {
                     const v = r.Geometry.Coordinates.split(",");
-                    retObj.push({name: r.Name, lat: v[0], lng: v[1]});
+                    retObj.push({name: r.Name, lat: v[1], lng: v[0]});
                 });
                 break;
 
