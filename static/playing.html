@@ -75,25 +75,15 @@
     <script type="module">
       import L from "https://code4sabae.github.io/leaflet-mjs/leaflet.mjs";
       import { fetchJSON } from "https://js.sabae.cc/fetchJSON.js";
+      import { sleep } from "https://js.sabae.cc/sleep.js";
 
       const points = { lat: [], lng: [] };
       let distanceSum = 0;
       let distance = document.getElementById("distance");
-      let startPoint;
-      // let goalPoint;
-      let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 }; //test用
+      //let goalPoint = { name: "福井大学", lat: 36.0772403, lng: 136.2117672 }; //test用
       let userId;
       let i = 0;
-      let watch_id;
-      let d, m, s, ms;
 
-      const map = L.map("mapid");
-      // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
-      L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
-        attribution:
-          '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
-        maxZoom: 18,
-      }).addTo(map);
       // let iconlayer = L.layerGroup();
       // iconlayer.addTo(map);
 
@@ -112,91 +102,117 @@
       }
 
       window.onload = async function () {
-        // Local Strage Data 取得
-        // startPoint = JSON.parse(localStorage.getItem("start"));
-        // goalPoint = JSON.parse(localStorage.getItem("goal"));
+        const map = L.map("mapid");
+        // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
+        L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
+          attribution:
+            '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
+          maxZoom: 18,
+        }).addTo(map);
+        
+        // Local Storage Data 取得
+        const startPoint = JSON.parse(localStorage.getItem("start"));
+        const goalPoint = JSON.parse(localStorage.getItem("goal"));
         // userId = localStorage.getItem("userId");
         console.log(startPoint);
         console.log(goalPoint);
         console.log(userId);
+        if (!startPoint || !goalPoint) {
+          alert("スタートとゴールの設定をしてください");
+          document.location = "setting.html";
+          return;
+        }
+        console.log(startPoint, goalPoint);
+        
+        //
+        const iconlayer = L.layerGroup();
+        iconlayer.addTo(map);
+        const lls = [];
+        const addMarker = (point, title) => {
+          console.log(point, title);
+          const ll = [point.lat, point.lng];
+          const marker = L.marker(ll, { title });
+          marker.bindPopup(title);
+          iconlayer.addLayer(marker);
+          lls.push(ll);
+          map.fitBounds(lls);
+        };
 
-        watch_id = navigator.geolocation.watchPosition(
-          await gps,
+        addMarker(startPoint, "スタート");
+        addMarker(goalPoint, "ゴール");
+
+        const processGPS = (position)  => {
+          console.log(position);
+          console.log("i = " + i);
+
+          const data = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          addMarker(data, "現在地");
+
+          points.lat.push(data.lat);
+          points.lng.push(data.lng);
+          console.log(points);
+
+          if (points.lat.length > 1) {
+            distanceSum += getDistance(
+              points.lat[i],
+              points.lng[i],
+              points.lat[i - 1],
+              points.lng[i - 1]
+            );
+            //distance.innerHTML = "移動距離: " + distanceSum;
+          }
+          i++;
+        }
+        const watch_id = navigator.geolocation.watchPosition(
+          processGPS,
           function (e) {
             alert(e.message);
           },
           { enableHighAccuracy: true, timeout: 20000, maximumAge: 2000 }
         );
+
+        // デバッグ用
+        async function setGoal() {
+          clearInterval(timeoutId);
+          navigator.geolocation.clearWatch(watch_id);
+          processGPS({ coords: { latitude: goalPoint.lat, longitude: goalPoint.lng } });
+          const time = getTime();
+          const data = await fetchJSON("api/timerstop", {
+            time: time,
+            distance: distanceSum,
+            schoolName: "ダミー学校",
+            userId: userId,
+          });
+          localStorage.setItem("time", formatTime(time));
+          localStorage.setItem("ranking", JSON.stringify(data));
+          console.log(localStorage.getItem("time"));
+          await sleep(3000);
+          window.location.href = "./result.html";
+        }
+        button.onclick = setGoal;
       };
 
-      async function gps(position) {
-        console.log(position);
-        console.log("i = " + i);
-        const data = [
-          {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            name: "開始点",
-          },
-          {
-            lat: goalPoint.lat,
-            lng: goalPoint.lng,
-            name: goalPoint.name,
-          },
-        ];
-
-        points.lat.push(data[0].lat);
-        points.lng.push(data[0].lng);
-        console.log(points);
-
-        if (points.lat.length > 1) {
-          distanceSum += getDistance(
-            points.lat[i],
-            points.lng[i],
-            points.lat[i - 1],
-            points.lng[i - 1]
-          );
-          //distance.innerHTML = "移動距離: " + distanceSum;
-        }
-        i++;
-
-        // const map = L.map("mapid");
-        // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
-        // L.tileLayer(
-        //   "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
-        //   {
-        //     attribution:
-        //       '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
-        //     maxZoom: 18,
-        //   }
-        // ).addTo(map);
-
-        let iconlayer = L.layerGroup();
-        iconlayer.addTo(map);
-        const lls = [];
-        for (const item of data) {
-          const ll = [item.lat, item.lng];
-          const marker = L.marker(ll, { title: item.name });
-          marker.bindPopup(item.name);
-          iconlayer.addLayer(marker);
-          lls.push(ll);
-        }
-        if (lls.length) map.fitBounds(lls);
-      }
-
       //  時間測定用
-      let startTime = Date.now();
-      let timeoutId;
+      const startTime = Date.now();
 
       // タイマーカウントアップ
-      const countUp = async function () {
-        d = new Date(Date.now() - startTime);
-        //console.log(d);
-        m = String(d.getMinutes()).padStart(2, "0");
-        s = String(d.getSeconds()).padStart(2, "0");
-        ms = String(d.getMilliseconds()).padStart(3, "0");
+      const getTime = () => {
+        return new Date(Date.now() - startTime);
+      };
+      const formatTime = (d) => {
+        const m = String(d.getMinutes()).padStart(2, "0");
+        const s = String(d.getSeconds()).padStart(2, "0");
+        const ms = String(d.getMilliseconds()).padStart(3, "0");
         // console.log(`${m}:${s}:${ms}`);
-        timer.textContent = `${m}:${s}:${ms}`;
+        return `${m}:${s}:${ms}`;
+      }
+      const countUp = function () {
+        const d = getTime();
+        //console.log(d);
+        timer.textContent = formatTime(d);
 
         // if (s === "10") {
         //   const data = await fetchJSON("api/timerstop", {
@@ -211,30 +227,10 @@
         //   window.location.href = "./result.html";
         // }
 
-        timeoutId = setTimeout(() => {
-          countUp();
-        }, 10);
       };
       // タイマーカウント
-      countUp();
+      const timeoutId = setInterval(countUp, 10);
 
-      async function setGoal() {
-        navigator.geolocation.clearWatch(watch_id);
-        gps({ coords: { latitude: goalPoint.lat, longitude: goalPoint.lng } });
-        const data = await fetchJSON("api/timerstop", {
-          time: d,
-          distance: distanceSum,
-          schoolName: "ダミー学校",
-          userId: userId,
-        });
-        localStorage.setItem("time", `${m}:${s}:${ms}`);
-        localStorage.setItem("ranking", JSON.stringify(data));
-        console.log(localStorage.getItem("time"));
-        //sleep(3000);
-        window.location.href = "./result.html";
-      }
-
-      document.getElementById("button").addEventListener("click", setGoal);
     </script>
   </body>
 </html>
